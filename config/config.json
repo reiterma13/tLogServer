@@ -1,0 +1,13 @@
+{
+  "ENV" : "development",
+
+  "PORT" : 3000,
+  "MONGO_URI" : {
+    "DEVELOPMENT" : "mongodb://localhost:27017/tlog2016-dev",
+    "PRODUCTION" : "mongodb://localhost:27017/tlog2016-prod",
+    "TEST" : "mongodb://localhost:27017/tlog2016-test"
+  },
+
+  "SESSION_SECRET" : "E9A1834F69C19BB2962DF8F262652",
+  "MAX_IMAGE_DIMENSION": 500
+}
