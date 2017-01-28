@@ -89,7 +89,13 @@ export const image = (req, res) => {
 };
 
 
-
+export const mine = (req,res,next) =>{
+  try {
+    POI.find({creator: req.user.id}).sort("-createdAt").populate('creator', 'local.username')
+      .then(pois => res.json(pois))
+  .catch(err => res.status(400).json({message: err.message}))
+  } catch(err) {res.status(500).json({message: err.message})}
+};
 
 
 export const addImage = function (req, res) {
