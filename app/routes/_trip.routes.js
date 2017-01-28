@@ -19,7 +19,9 @@ export default (app, router, auth, admin) => {
   router.get('/trip',auth,trip.list);
   router.param('tripId',trip.load);
   router.get('/trip/mine',auth,trip.mine);
+  router.get('/trip/all',auth,trip.all);
   router.get('/trip/count',auth,trip.count);
   router.delete('/trip/:tripId',auth,checkPermission(tripOwnerOrAdminCondition),trip.remove);
   router.get('/trip/:tripId',trip.show);
+  
 }

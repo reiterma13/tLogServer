@@ -51,6 +51,15 @@ export const mine = (req,res,next) =>{
   } catch(err) {res.status(500).json({message: err.message})}
 };
 
+export const all = (req,res,next) =>{
+  try {
+    Trip.find({}).sort("-createdAt")
+      .then(trips => res.json(trips))
+  .catch(err => res.status(400).json({message: err.message}))
+  } catch(err) {res.status(500).json({message: err.message})}
+};
+
+
 export const addPOI = (req,res,next) =>{
   try {
     req.trip.pois.push(req.poi);

@@ -79,13 +79,18 @@ export const destroy = (req, res, next) => {
 
 export const image = (req, res) => {
   try {
-    id = req.params.imageId;
-    ObjectID = mongoose.mongo.ObjectID;
-    gfs.createReadStream({_id: new ObjectID(id)}).pipe(res);
+    const gfs = grid(mongoose.connection.db);
+    console.log("id="+req.params.imageId);
+    let ObjectID = mongoose.mongo.ObjectID;
+    gfs.createReadStream({_id: new ObjectID(req.params.imageId)}).pipe(res);
   } catch(err) {
     res.status(500).json({message: err.message})
   }
 };
+
+
+
+
 
 export const addImage = function (req, res) {
   try {
