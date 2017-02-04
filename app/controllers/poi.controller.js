@@ -8,6 +8,18 @@ import gm from "gm";
 import fs from "fs";
 grid.mongo = mongoose.mongo;
 
+export const addLiked = (pois,req) => {
+  let modpois = [];
+  pois.forEach(poi => {
+    if (poi.likes.map(e => String(e.userid)).indexOf(req.user.id) != -1) {
+      poi.liked = true;
+    } else {
+      poi.liked = false;
+    }
+    modpois.push(poi);
+  })
+  return modpois;
+}
 
 export const create = (req, res, next) => {
   const poi = new POI(req.body);
@@ -30,7 +42,7 @@ export const all = (req, res, next) => {
       .skip(page * size)
       .limit(size)
       .populate('creator', 'local.username')
-      .then((data) => res.json(data))
+      .then(data => res.json(addLiked(data,req)))
       .catch(err => res.status(500).json({message: err.message}))
   } catch (err) {
     res.status(500).json({message: err.message})
@@ -92,7 +104,7 @@ export const image = (req, res) => {
 export const mine = (req,res,next) =>{
   try {
     POI.find({creator: req.user.id}).sort("-createdAt").populate('creator', 'local.username')
-      .then(pois => res.json(pois))
+      .then(pois => res.json(addLiked(pois,req)))
   .catch(err => res.status(400).json({message: err.message}))
   } catch(err) {res.status(500).json({message: err.message})}
 };
@@ -146,5 +158,27 @@ export const addImage = function (req, res) {
   }
 };
 
-
-
+export const like = (req, res, next) => {
+  try {
+    const poi = req.poi;
+    const index = poi.likes.map(e => String(e.userid)).indexOf(req.user.id);
+    //console.log(index);
+    if (index != -1) {
+      poi.likes.splice(index, 1);
+    } else {
+      poi.likes.push({
+        userid: req.user.id,
+        username: req.user.username
+      });
+    }
+    poi.save()
+      .then(poi => POI.load(poi._id))
+      .then(poi => {
+        req.poi = poi;
+        next();
+      })
+      .catch(err => res.status(400).json({message: "The POI could not be liked: "+ err.message}));
+  } catch (err) {
+    res.status(500).json({message: err.message})
+  }
+};

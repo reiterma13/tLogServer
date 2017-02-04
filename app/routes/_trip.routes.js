@@ -23,5 +23,5 @@ export default (app, router, auth, admin) => {
   router.get('/trip/count',auth,trip.count);
   router.delete('/trip/:tripId',auth,checkPermission(tripOwnerOrAdminCondition),trip.remove);
   router.get('/trip/:tripId',trip.show);
-  
+  router.patch('/trip/:tripId/like',auth,trip.like,trip.show);
 }

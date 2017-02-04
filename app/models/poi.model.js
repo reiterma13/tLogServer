@@ -40,7 +40,14 @@ const poiSchema = Schema({
       },
       user: String
     }
-  ]
+  ],
+  likes: [
+    {
+      userid: Schema.Types.ObjectId,
+      username: String
+    }
+  ],
+  liked: Boolean
 });
 
 poiSchema.index({

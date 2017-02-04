@@ -28,7 +28,14 @@ const TripSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'POI'
     }
-  ]
+  ],
+  likes: [
+    {
+      userid: Schema.Types.ObjectId,
+      username: String
+    }
+  ],
+  liked: Boolean
 });
 
 
