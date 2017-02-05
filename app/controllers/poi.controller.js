@@ -8,13 +8,18 @@ import gm from "gm";
 import fs from "fs";
 grid.mongo = mongoose.mongo;
 
-export const addLiked = (pois,req) => {
+export const addLikedandRating = (pois,req) => {
   let modpois = [];
   pois.forEach(poi => {
     if (poi.likes.map(e => String(e.userid)).indexOf(req.user.id) != -1) {
       poi.liked = true;
     } else {
       poi.liked = false;
+    }
+    if (poi.ratings != undefined) {
+      let totalrating = 0;
+      poi.ratings.forEach(e => totalrating += e.rating);
+      poi.rating = totalrating / poi.ratings.length;
     }
     modpois.push(poi);
   })
@@ -42,7 +47,7 @@ export const all = (req, res, next) => {
       .skip(page * size)
       .limit(size)
       .populate('creator', 'local.username')
-      .then(data => res.json(addLiked(data,req)))
+      .then(data => res.json(addLikedandRating(data,req)))
       .catch(err => res.status(500).json({message: err.message}))
   } catch (err) {
     res.status(500).json({message: err.message})
@@ -62,7 +67,19 @@ export const load = (req, res, next, id) => {
   }
 };
 
-export const show = (req, res) => res.json(req.poi);
+export const show = (req, res) => {
+  if (req.poi.likes.map(e => String(e.userid)).indexOf(req.user.id) != -1) {
+    req.poi.liked = true;
+  } else {
+    req.poi.liked = false;
+  }
+  if (req.poi.ratings != undefined) {
+    let totalrating = 0;
+    req.poi.ratings.forEach(e => totalrating += e.rating);
+    req.poi.rating = totalrating / req.poi.ratings.length;
+  }
+  res.json(req.poi);
+};
 
 export const update = (req, res, next) => {
   try {
@@ -104,7 +121,7 @@ export const image = (req, res) => {
 export const mine = (req,res,next) =>{
   try {
     POI.find({creator: req.user.id}).sort("-createdAt").populate('creator', 'local.username')
-      .then(pois => res.json(addLiked(pois,req)))
+      .then(pois => res.json(addLikedandRating(pois,req)))
   .catch(err => res.status(400).json({message: err.message}))
   } catch(err) {res.status(500).json({message: err.message})}
 };
@@ -178,6 +195,47 @@ export const like = (req, res, next) => {
         next();
       })
       .catch(err => res.status(400).json({message: "The POI could not be liked: "+ err.message}));
+  } catch (err) {
+    res.status(500).json({message: err.message})
+  }
+};
+
+export const rate = (req, res, next) => {
+  try {
+    const poi = req.poi;
+    let rating = req.body.number;
+    if (rating < 1) {
+      rating = 1;
+    } else if (rating > 5) {
+      rating = 5;
+    }
+    if (rating != undefined) {
+      console.log(req.body);
+      const index = poi.ratings.map(e => String(e.userid)).indexOf(req.user.id);
+      if (index != -1) {
+        poi.ratings.splice(index, 1);
+        poi.ratings.push({
+          userid: req.user.id,
+          username: req.user.username,
+          rating: rating
+        });
+      } else {
+        poi.ratings.push({
+          userid: req.user.id,
+          username: req.user.username,
+          rating: rating
+        });
+      }
+      poi.save()
+        .then(poi => POI.load(poi._id))
+        .then(poi => {
+          req.poi = poi;
+          next();
+        })
+        .catch(err => res.status(400).json({message: "The POI could not be rated: " + err.message}));
+    } else {
+      res.status(500).json({message: "Could not rate!"});
+    }
   } catch (err) {
     res.status(500).json({message: err.message})
   }
