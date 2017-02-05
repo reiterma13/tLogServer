@@ -55,6 +55,7 @@ const poiSchema = Schema({
       rating: Number
     }
   ],
+  totalrating: Number,
   rating: Number
 });
 

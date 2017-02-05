@@ -17,9 +17,13 @@ export const addLikedandRating = (pois,req) => {
       poi.liked = false;
     }
     if (poi.ratings != undefined) {
+      const index = poi.ratings.map(e => String(e.userid)).indexOf(req.user.id);
+      if (index != -1) {
+        poi.rating = poi.ratings[index].rating;
+      }
       let totalrating = 0;
       poi.ratings.forEach(e => totalrating += e.rating);
-      poi.rating = totalrating / poi.ratings.length;
+      poi.totalrating = totalrating / poi.ratings.length;
     }
     modpois.push(poi);
   })
@@ -74,9 +78,13 @@ export const show = (req, res) => {
     req.poi.liked = false;
   }
   if (req.poi.ratings != undefined) {
+    const index = req.poi.ratings.map(e => String(e.userid)).indexOf(req.user.id);
+    if (index != -1) {
+      req.poi.rating = req.poi.ratings[index].rating;
+    }
     let totalrating = 0;
     req.poi.ratings.forEach(e => totalrating += e.rating);
-    req.poi.rating = totalrating / req.poi.ratings.length;
+    req.poi.totalrating = totalrating / req.poi.ratings.length;
   }
   res.json(req.poi);
 };

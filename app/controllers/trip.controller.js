@@ -14,9 +14,13 @@ export const addLikedandRating = (trips,req) => {
       trip.liked = false;
     }
     if (trip.ratings != undefined) {
+      const index = trip.ratings.map(e => String(e.userid)).indexOf(req.user.id)
+      if (index != -1) {
+        trip.rating = trip.ratings[index].rating;
+      }
       let totalrating = 0;
       trip.ratings.forEach(e => totalrating += e.rating);
-      trip.rating = totalrating / trip.ratings.length;
+      trip.totalrating = totalrating / trip.ratings.length;
     }
     modtrips.push(trip);
   })
@@ -31,9 +35,13 @@ export const show = (req,res) => {
       req.trip.liked = false;
     }
     if (req.trip.ratings != undefined) {
+      const index = req.trip.ratings.map(e => String(e.userid)).indexOf(req.user.id)
+      if (index != -1) {
+        req.trip.rating = req.trip.ratings[index].rating;
+      }
       let totalrating = 0;
       req.trip.ratings.forEach(e => totalrating += e.rating);
-      req.trip.rating = totalrating / req.trip.ratings.length;
+      req.trip.totalrating = totalrating / req.trip.ratings.length;
     }
     res.json(req.trip);
   } catch(err) {res.status(500).json({message: `Could not send this Trip: ${err.message}`})}

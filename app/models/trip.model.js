@@ -43,6 +43,7 @@ const TripSchema = new Schema({
       rating: Number
     }
   ],
+  totalrating: Number,
   rating: Number
 });
 
