@@ -104,7 +104,7 @@ export const mine = (req,res,next) =>{
 export const all = (req,res,next) =>{
   try {
     Trip.find({}).sort("-createdAt")
-      .then(trips => res.json(addLikedandRating(trips,req)))
+      .then(trips => res.json(addLikedRatingandWant(trips,req)))
   .catch(err => res.status(400).json({message: err.message}))
   } catch(err) {res.status(500).json({message: err.message})}
 };
