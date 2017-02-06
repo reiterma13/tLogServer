@@ -4,7 +4,7 @@
 
 import Trip from '../models/trip.model';
 
-export const addLikedandRating = (trips,req) => {
+export const addLikedRatingandWant = (trips,req) => {
   //console.log(data);
   let modtrips = [];
   trips.forEach(trip => {
@@ -12,6 +12,11 @@ export const addLikedandRating = (trips,req) => {
       trip.liked = true;
     } else {
       trip.liked = false;
+    }
+    if (trip.wants.map(e => String(e.userid)).indexOf(req.user.id) != -1) {
+      trip.want = true;
+    } else {
+      trip.want = false;
     }
     if (trip.ratings != undefined) {
       const index = trip.ratings.map(e => String(e.userid)).indexOf(req.user.id)
@@ -33,6 +38,11 @@ export const show = (req,res) => {
       req.trip.liked = true;
     } else {
       req.trip.liked = false;
+    }
+    if (req.trip.wants.map(e => String(e.userid)).indexOf(req.user.id) != -1) {
+      req.trip.want = true;
+    } else {
+      req.trip.want = false;
     }
     if (req.trip.ratings != undefined) {
       const index = req.trip.ratings.map(e => String(e.userid)).indexOf(req.user.id)
@@ -67,7 +77,7 @@ export const list = (req,res,next) => {
       .skip(page * size)
       .limit(size)
       .populate('creator', 'local.username')
-      .then(data => res.json(addLikedandRating(data,req)))
+      .then(data => res.json(addLikedRatingandWant(data,req)))
       .catch(err => res.json(500,{message:err.message}))
   } catch(err) {res.status(500).json({message: `Could not list Trips: ${err.message}`})}
 };
@@ -86,7 +96,7 @@ export const load = (req,res,next,id) =>{
 export const mine = (req,res,next) =>{
   try {
     Trip.find({creator: req.user.id}).sort("-createdAt").populate('creator', 'local.username')
-      .then(trips => res.json(addLikedandRating(trips,req)))
+      .then(trips => res.json(addLikedRatingandWant(trips,req)))
       .catch(err => res.status(400).json({message: err.message}))
   } catch(err) {res.status(500).json({message: err.message})}
 };
@@ -200,6 +210,30 @@ export const rate = (req, res, next) => {
     } else {
       res.status(500).json({message: "Could not rate!"});
     }
+  } catch (err) {
+    res.status(500).json({message: err.message})
+  }
+};
+
+export const want = (req, res, next) => {
+  try {
+    const trip = req.trip;
+    const index = trip.wants.map(e => String(e.userid)).indexOf(req.user.id);
+    if (index != -1) {
+      trip.wants.splice(index, 1);
+    } else {
+      trip.wants.push({
+        userid: req.user.id,
+        username: req.user.username
+      });
+    }
+    trip.save()
+      .then(trip => Trip.load(trip._id))
+      .then(trip => {
+        req.trip = trip;
+        next();
+      })
+      .catch(err => res.status(400).json({message: "The Trip could not be added to wanted: " + err.message}));
   } catch (err) {
     res.status(500).json({message: err.message})
   }

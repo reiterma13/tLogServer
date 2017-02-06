@@ -22,4 +22,5 @@ export default (app, router, auth, admin) => {
   router.post('/poi/:poiId/image',auth,multipartMiddleware,poi.addImage);
   router.patch('/poi/:poiId/like',auth,poi.like,poi.show);
   router.patch('/poi/:poiId/rate',auth,poi.rate,poi.show);
+  router.patch('/poi/:poiId/want',auth,poi.want,poi.show);
 }

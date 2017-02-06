@@ -25,4 +25,5 @@ export default (app, router, auth, admin) => {
   router.get('/trip/:tripId',auth,trip.show);
   router.patch('/trip/:tripId/like',auth,trip.like,trip.show);
   router.patch('/trip/:tripId/rate',auth,trip.rate,trip.show);
+  router.patch('/trip/:tripId/want',auth,trip.want,trip.show);
 }

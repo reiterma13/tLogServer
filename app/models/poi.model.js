@@ -56,7 +56,14 @@ const poiSchema = Schema({
     }
   ],
   totalrating: Number,
-  rating: Number
+  rating: Number,
+  wants: [
+    {
+      userid: Schema.Types.ObjectId,
+      username: String
+    }
+  ],
+  want: Boolean
 });
 
 poiSchema.index({
